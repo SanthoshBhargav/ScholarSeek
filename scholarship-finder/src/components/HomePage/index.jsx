@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
+
 const HomePage = () => {
   const [scholarships, setScholarships] = useState([{
           _id: "1",
           shortDescription: "This is a sample scholarship description.",
           deadline: "12-12-2025" ,
-          applicationLink: "" ,
           name: "Name" ,
           amountType: "Full" , 
           description: "nothing",
@@ -19,13 +19,25 @@ const HomePage = () => {
           contactEmail: "ntse@gmail.com",
           contactPhone: 123456789,
           website: "http://localhost:5137"
+        },
+        {
+          _id: "6836d92bd2d94e7c416210e2",
+          Eligibility: "PhD degree holders",
+          Region: "India",
+          Deadline: "Always Open",
+          Award: "INR 45,000 to INR 55,000 per month plus HRA",
+          Description: "The Indian Institute of Technology, Bhubaneswar is inviting applications for IIT Bhubaneswar Post Doctoral Fellowship Programme 2020 from PhD degree holders below 35 years of age. The fellows will be required to participate in the teaching and research activities of the Institute including mentoring young undergraduates and post-graduate students. The selected fellows will receive a fellowship of  INR 45,000 to INR 55,000 per month plus HRA (depending upon the experience and qualification).",
+          Email: "ar.acad@iitbbs.ac.in",
+          link: "http://webapps.iitbbs.ac.in/pdf-application/index.php",
+          category: "mixed",
+          Links: "{'Apply online link': 'http://webapps.iitbbs.ac.in/pdf-application/pdf-registration.php', 'Latest scholarship link': 'http://webapps.iitbbs.ac.in/pdf-application/index.php', 'Others': 'http://webapps.iitbbs.ac.in/pdf-application/pdf-usefull-info-01.pdf'}",
+          contactDetails: "Assistant Registrar (Academic Affairs)\nIndian Institute of Technology Bhubaneswar\nArgul, Khordha-752050, ODISHA\nE-mail id – ar.acad@iitbbs.ac.in\nContact No. – 0674-7134578",
+          name: "IIT Bhubaneswar Post Doctoral Fellowship Programme 2020"
         }]);
   const [filteredScholarships, setFilteredScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
-    amount: '',
-    course: '',
-    gpa: '',
+    type: '',
     location: '',
     deadline: ''
   });
@@ -34,13 +46,9 @@ const HomePage = () => {
   useEffect(() => {
     const fetchScholarships = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('/api/scholarships', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await fetch('http://localhost:3000/scholarships');
         const data = await response.json();
+        console.log(data);
         setScholarships(data);
         setFilteredScholarships(data);
         setLoading(false);
@@ -61,24 +69,12 @@ const HomePage = () => {
     let result = [...scholarships];
 
     if (filters.amount) {
-      result = result.filter(scholarship => scholarship.amountType === filters.amount);
-    }
-
-    if (filters.course) {
-      result = result.filter(scholarship => 
-        scholarship.eligibleCourses.includes(filters.course)
-      );
-    }
-
-    if (filters.gpa) {
-      result = result.filter(scholarship => 
-        scholarship.minGPA <= parseFloat(filters.gpa)
-      );
+      result = result.filter(scholarship => scholarship.category === filters.type);
     }
 
     if (filters.location) {
       result = result.filter(scholarship => 
-        scholarship.location.toLowerCase().includes(filters.location.toLowerCase())
+        scholarship.Region.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
@@ -93,7 +89,7 @@ const HomePage = () => {
       }
       
       result = result.filter(scholarship => {
-        const scholarshipDeadline = new Date(scholarship.deadline);
+        const scholarshipDeadline = new Date(scholarship.Deadline);
         return scholarshipDeadline <= deadlineDate;
       });
     }
@@ -113,7 +109,7 @@ const HomePage = () => {
   };
 
   const urgentDeadlines = scholarships.filter(scholarship => {
-    const deadline = new Date(scholarship.deadline);
+    const deadline = new Date(scholarship.Deadline);
     const now = new Date();
     const diffTime = deadline - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -139,11 +135,12 @@ const HomePage = () => {
           <div className="filter-grid">
             <div className="filter-group">
               <label>Amount Type</label>
-              <select name="amount" value={filters.amount} onChange={handleFilterChange}>
+              <select name="type" onChange={handleFilterChange}>
                 <option value="">All</option>
-                <option value="Full">Full</option>
-                <option value="Partial">Partial</option>
-                <option value="Small">Small Grants</option>
+                <option value="monetory">Monetory</option>
+                <option value="fee Wavier">Fee Wavier</option>
+                <option value="both">Both</option>
+                <option value="non-monetory">Non-monetory</option>
               </select>
             </div>
 
@@ -157,20 +154,6 @@ const HomePage = () => {
                 <option value="Arts">Arts</option>
                 <option value="Science">Science</option>
               </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Minimum GPA</label>
-              <input 
-                type="number" 
-                name="gpa" 
-                min="0" 
-                max="4" 
-                step="0.1"
-                value={filters.gpa}
-                onChange={handleFilterChange}
-                placeholder="e.g., 3.0"
-              />
             </div>
 
             <div className="filter-group">
@@ -209,15 +192,15 @@ const HomePage = () => {
               >
                 <h3>{scholarship.name}</h3>
                 <div className="scholarship-details">
-                  <span className={`amount-badge ${scholarship.amountType.toLowerCase()}`}>
-                    {scholarship.amountType}
+                  <span className={`amount-badge ${scholarship.category.toLowerCase()}`}>
+                    {scholarship.category}
                   </span>
-                  <span>Deadline: {new Date(scholarship.deadline).toLocaleDateString()}</span>
+                  <span>Deadline: {new Date(scholarship.Deadline).toLocaleDateString()}</span>
                 </div>
-                <p className="description">{scholarship.shortDescription}</p>
+                {/* <p className="description">{scholarship.Description}</p> */}
                 <div className="eligibility">
-                  <span>Course: {scholarship.eligibleCourses.join(', ')}</span>
-                  <span>GPA: {scholarship.minGPA}+</span>
+                  {/* <span>Course: {scholarship.eligibleCourses.join(', ')}</span> */}
+                  {/* <span>GPA: {scholarship.minGPA}+</span> */}
                 </div>
               </div>
             ))

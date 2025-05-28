@@ -1,6 +1,7 @@
 
 .home-page{
   width:80vw;
+  z-index: 100;
 }
 
 .home-container {

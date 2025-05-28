@@ -1,6 +1,7 @@
 import React from 'react';
+import logo from '../../assets/Images/logo.png'; // Adjust the path as necessary
 import { Link, useNavigate } from 'react-router-dom';
-import { FaGraduationCap, FaBars } from 'react-icons/fa';
+import { FaBars } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -19,7 +20,7 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo/App Name */}
         <Link to="/" className="navbar-logo">
-          <FaGraduationCap /> SholarSeek
+          <img src={logo} alt="ScholarSeek Logo" className="logo-image" />
         </Link>
 
         {/* Mobile Menu Toggle */}

@@ -1,29 +1,13 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
 const Scholarship = require('./scholarship-model')
 const bcrypt = require('bcrypt')
 
 const app = express()
 app.use(express.json())
-
-// const initializeDBAndServer = async () => {
-//   try {
-//     await mongoose.connect("mongodb://localhost:27017/", {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true,
-//     });
-//     console.log("Connected to DB");
-//     app.listen(3000, () => {
-//       console.log('Server Running at http://localhost:3000/')
-//     })
-//   } catch (e) {
-//     console.log(`DB Error: ${e.message}`)
-//     process.exit(1)
-//   }
-// }
-
-// initializeDBAndServer()
+app.use(cors())
 
 async function main() {
     await mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/Scholarseek");
@@ -113,20 +97,20 @@ const midwareFunc = (req, res, next) => {
 //   console.log(dbuser)
 // })
 
+app.get('/', (req, res) => {
+    res.send('Welcome to the Scholarship Finder API')
+})
+
 app.get('/scholarships/', async (req, res) => {
     try {
         // Fetch scholarships from the database
-        const scholarships = await Scholarship.findOne()
-        // Convert the Links string to an object if it exists
-        let linksObj = {}
-        if (scholarships && typeof scholarships.Links === 'string') {
-            try {
-            linksObj = JSON.parse(scholarships.Links.replace(/'/g, '"')) // Replace single quotes with double quotes for JSON parsing
-            } catch (e) {
-            console.error('Failed to parse Links:', e)
+        const scholarships = await Scholarship.find()
+        let links = []
+        scholarships.forEach(scholarship => {
+            if (scholarship.Links) {
+                links.push(JSON.parse(scholarship.Links.replace(/'/g, '"')))
             }
-        }
-        console.log(linksObj)
+        })
         res.status(200).json(scholarships)
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch scholarships' })
