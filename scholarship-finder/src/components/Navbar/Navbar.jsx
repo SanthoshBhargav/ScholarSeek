@@ -5,13 +5,12 @@ import { FaBars } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
-  const isAuthenticated = localStorage.getItem('token') ? true : false;
+  const isAuthenticated = localStorage.getItem('jwtoken') ? true : false;
   const navigate = useNavigate();
 
   const handleLogout = () => {
     // Clear user session
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('jwtoken');
     navigate('/login');
   };
 

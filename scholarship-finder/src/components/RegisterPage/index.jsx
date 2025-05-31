@@ -1,8 +1,9 @@
 import logo from '../../assets/Images/logo.png'
 import './RegisterPage.css'
+import { useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
-
+  const navigate = useNavigate();
   const togglePassword = (event) => {
     const passwordInput = document.getElementById('passweord');
     if (event.target.checked) {
@@ -12,13 +13,36 @@ function RegisterPage() {
     }
   }
 
-  const formSubmitted = (event) => { 
+  const formSubmitted = async (event) => { 
     event.preventDefault();
     const form = document.getElementById('register-form');
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     console.log('Form submitted with data:',data);
     form.reset();
+    try {
+      const response = await fetch('http://localhost:3000/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      console.log('Response status:', response );
+      if (response.ok) {
+        console.log('User registered successfully:');
+        alert('Registration successful!');
+        navigate('/login'); 
+      } else {
+        const error = await response.text();
+        console.error('Error registering user:', error);
+        alert(`Registration failed: ${error}`);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('Network error, please try again later.');
+    }
+
   }
 
   return (

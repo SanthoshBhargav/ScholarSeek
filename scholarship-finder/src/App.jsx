@@ -5,7 +5,7 @@ import RegisterPage from './components/RegisterPage';
 import ScholarshipDetailPage from './components/ScholarshipdetailPage'
 import ProfilePage from './components/ProfilePage';
 import Navbar from './components/Navbar/Navbar';
-import HomePage from './components/HomePage'
+import HomePage from './components/HomePage';
 import './App.css';
 
 function App() {

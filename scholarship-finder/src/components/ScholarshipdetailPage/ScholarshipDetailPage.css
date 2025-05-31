@@ -1,13 +1,14 @@
 /* src/pages/ScholarshipDetailPage.css */
 .scholarship-detail-container {
-  width:75vw;
+  width:85vw;
   margin:2rem auto;
-  padding: 2rem 1rem;
   background-color: #a8a7a7;
   height:90vh;
   overflow-y: scroll;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0,0,0,0.1) ;
+  padding: 30px;
+  margin-top: 90px;
 }
 
 .back-button {
@@ -143,12 +144,15 @@
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 1rem;
   transition: background-color 0.2s;
+  margin: 1rem auto 0.5rem auto;
+  border: 2px solid transparent;
+  font-weight: 600;
 }
 
 .apply-button:hover:not(:disabled) {
-  background-color: #45a049;
+  border:#207e36 2px solid;
+  text-shadow: 0 0 3px #207e36;
 }
 
 .apply-button:disabled {
@@ -177,6 +181,10 @@
 
 .not-found {
   color: #666;
+}
+
+.expired-notice{
+  margin-bottom: 1.5rem;
 }
 
 @media (max-width: 768px) {

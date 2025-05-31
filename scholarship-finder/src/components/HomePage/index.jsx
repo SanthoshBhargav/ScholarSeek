@@ -1,10 +1,11 @@
-// src/pages/HomePage.jsx
-import React, { useState, useEffect } from 'react';
+// src/pages/HomePage.jsx;
+import React, { useState, useEffect, use } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
 
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [scholarships, setScholarships] = useState([{
           _id: "1",
           shortDescription: "This is a sample scholarship description.",
@@ -19,29 +20,20 @@ const HomePage = () => {
           contactEmail: "ntse@gmail.com",
           contactPhone: 123456789,
           website: "http://localhost:5137"
-        },
-        {
-          _id: "6836d92bd2d94e7c416210e2",
-          Eligibility: "PhD degree holders",
-          Region: "India",
-          Deadline: "Always Open",
-          Award: "INR 45,000 to INR 55,000 per month plus HRA",
-          Description: "The Indian Institute of Technology, Bhubaneswar is inviting applications for IIT Bhubaneswar Post Doctoral Fellowship Programme 2020 from PhD degree holders below 35 years of age. The fellows will be required to participate in the teaching and research activities of the Institute including mentoring young undergraduates and post-graduate students. The selected fellows will receive a fellowship of  INR 45,000 to INR 55,000 per month plus HRA (depending upon the experience and qualification).",
-          Email: "ar.acad@iitbbs.ac.in",
-          link: "http://webapps.iitbbs.ac.in/pdf-application/index.php",
-          category: "mixed",
-          Links: "{'Apply online link': 'http://webapps.iitbbs.ac.in/pdf-application/pdf-registration.php', 'Latest scholarship link': 'http://webapps.iitbbs.ac.in/pdf-application/index.php', 'Others': 'http://webapps.iitbbs.ac.in/pdf-application/pdf-usefull-info-01.pdf'}",
-          contactDetails: "Assistant Registrar (Academic Affairs)\nIndian Institute of Technology Bhubaneswar\nArgul, Khordha-752050, ODISHA\nE-mail id – ar.acad@iitbbs.ac.in\nContact No. – 0674-7134578",
-          name: "IIT Bhubaneswar Post Doctoral Fellowship Programme 2020"
         }]);
-  const [filteredScholarships, setFilteredScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    type: '',
-    location: '',
-    deadline: ''
+  const [filteredScholarships, setFilteredScholarships] = useState([...scholarships]);
+  const [filter, setFilter] = useState({
+    category: '',
+    deadline: '',
   });
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    const jwtoken = localStorage.getItem('jwtoken');
+    if (!jwtoken) {
+      navigate('/login');
+    }
+  });
 
   useEffect(() => {
     const fetchScholarships = async () => {
@@ -62,58 +54,42 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    applyFilters();
-  }, [filters, scholarships]);
+    const applyFilters = () => {
+      let filtered = scholarships;
 
-  const applyFilters = () => {
-    let result = [...scholarships];
-
-    if (filters.amount) {
-      result = result.filter(scholarship => scholarship.category === filters.type);
-    }
-
-    if (filters.location) {
-      result = result.filter(scholarship => 
-        scholarship.Region.toLowerCase().includes(filters.location.toLowerCase())
-      );
-    }
-
-    if (filters.deadline) {
-      const now = new Date();
-      const deadlineDate = new Date(now);
-      
-      if (filters.deadline === 'week') {
-        deadlineDate.setDate(now.getDate() + 7);
-      } else if (filters.deadline === 'month') {
-        deadlineDate.setMonth(now.getMonth() + 1);
+      if (filter.category) {
+        filtered = filtered.filter(scholarship => scholarship.category === filter.category);
       }
-      
-      result = result.filter(scholarship => {
-        const scholarshipDeadline = new Date(scholarship.Deadline);
-        return scholarshipDeadline <= deadlineDate;
-      });
-    }
+      if(filter.deadline === 'always-open') {
+        filtered = filtered.filter(scholarship => scholarship.Deadline === 'Always Open');
+      }else if (filter.deadline=== 'six-months') {
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() + 6);
+        filtered = filtered.filter(scholarship => new Date(scholarship.Deadline) <= sixMonthsAgo);
+      }else if (filter.deadline === 'month') {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() + 1);
+        filtered = filtered.filter(scholarship => new Date(scholarship.Deadline) <= oneMonthAgo);
+      }else if (filter.deadline === 'week') {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() + 7);
+        filtered = filtered.filter(scholarship => new Date(scholarship.Deadline) <= oneWeekAgo);
+      }
 
-    setFilteredScholarships(result);
-  };
+      setFilteredScholarships(filtered);
+    };
 
-  const handleFilterChange = (e) => {
-    setFilters({
-      ...filters,
-      [e.target.name]: e.target.value
-    });
-  };
+    applyFilters();
+  });
 
   const handleScholarshipClick = (id) => {
     navigate(`/scholarship/${id}`);
   };
 
   const urgentDeadlines = scholarships.filter(scholarship => {
-    const deadline = new Date(scholarship.Deadline);
-    const now = new Date();
-    const diffTime = deadline - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 7 && diffDays >= 0;
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() + 7);
+    return (new Date(scholarship.Deadline) <= oneWeekAgo);
   });
 
   return (
@@ -131,48 +107,26 @@ const HomePage = () => {
         </header>
 
         <div className="filter-section">
-          <h2>Filter Scholarships</h2>
+          <h2>Filters</h2>
           <div className="filter-grid">
             <div className="filter-group">
-              <label>Amount Type</label>
-              <select name="type" onChange={handleFilterChange}>
-                <option value="">All</option>
-                <option value="monetory">Monetory</option>
-                <option value="fee Wavier">Fee Wavier</option>
-                <option value="both">Both</option>
-                <option value="non-monetory">Non-monetory</option>
+              <label htmlFor="category">Category:</label>
+              <select onChange={(e)=>{setFilter({category:e.target.value})}} id="category" name="category">
+                <option value="">All Categories</option>
+                <option value="monetary">Monetary</option>
+                <option value="tuition_waiver">Tuition Waiver</option>
+                <option value="mixed">Mixed</option>
+                <option value="other">Other</option>
               </select>
             </div>
-
             <div className="filter-group">
-              <label>Course</label>
-              <select name="course" value={filters.course} onChange={handleFilterChange}>
+              <label htmlFor="deadline">Deadline:</label>
+              <select onChange={(e)=>{setFilter({deadline:e.target.value})}} id="category" name="category">
                 <option value="">All</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Medicine">Medicine</option>
-                <option value="Business">Business</option>
-                <option value="Arts">Arts</option>
-                <option value="Science">Science</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Location</label>
-              <input 
-                type="text" 
-                name="location" 
-                value={filters.location}
-                onChange={handleFilterChange}
-                placeholder="Country or City"
-              />
-            </div>
-
-            <div className="filter-group">
-              <label>Deadline Within</label>
-              <select name="deadline" value={filters.deadline} onChange={handleFilterChange}>
-                <option value="">Any time</option>
-                <option value="week">Next 7 days</option>
-                <option value="month">Next 30 days</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="six-months">Six Months</option>
+                <option value="always-open">Always Open</option>
               </select>
             </div>
           </div>
@@ -192,15 +146,19 @@ const HomePage = () => {
               >
                 <h3>{scholarship.name}</h3>
                 <div className="scholarship-details">
-                  <span className={`amount-badge ${scholarship.category.toLowerCase()}`}>
+                  <span className="amount-badge">
                     {scholarship.category}
                   </span>
-                  <span>Deadline: {new Date(scholarship.Deadline).toLocaleDateString()}</span>
+                  <span>Deadline: {
+                    new Date(scholarship.Deadline).toLocaleDateString() === "Invalid Date" ?
+                    scholarship.Deadline :
+                    new Date(scholarship.Deadline).toLocaleDateString()
+                  }</span>
                 </div>
-                {/* <p className="description">{scholarship.Description}</p> */}
+                <p className="description">{scholarship.Description}</p>
                 <div className="eligibility">
-                  {/* <span>Course: {scholarship.eligibleCourses.join(', ')}</span> */}
-                  {/* <span>GPA: {scholarship.minGPA}+</span> */}
+                  <span>Course: All Courses</span>
+                  <span>GPA: 6+</span>
                 </div>
               </div>
             ))

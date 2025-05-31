@@ -3,10 +3,10 @@ import Navbar from "../Navbar/Navbar.jsx";
 import "./ProfilePage.css"; 
 
 const initialProfile = {
-    college: "Enter your college",
-    course: "Enter your course",
-    cpi: "Enter your CPI",
-    region: "Enter your region",
+    college: "",
+    course: "",
+    cpi: "",
+    region: "",
 };
 
 export default function ProfilePage() {
@@ -51,6 +51,7 @@ export default function ProfilePage() {
                                         value={form.college}
                                         onChange={handleChange}
                                         style={{ width: "100%" }}
+                                        placeholder="Enter your college name"
                                     />
                                 ) : (
                                     profile.college
@@ -66,6 +67,7 @@ export default function ProfilePage() {
                                         value={form.course}
                                         onChange={handleChange}
                                         style={{ width: "100%" }}
+                                        placeholder="Enter your course name"
                                     />
                                 ) : (
                                     profile.course
@@ -81,6 +83,8 @@ export default function ProfilePage() {
                                         value={form.cpi}
                                         onChange={handleChange}
                                         style={{ width: "100%" }}
+                                        placeholder="Enter your CPI"
+                                        type="number"
                                     />
                                 ) : (
                                     profile.cpi
@@ -96,6 +100,7 @@ export default function ProfilePage() {
                                         value={form.region}
                                         onChange={handleChange}
                                         style={{ width: "100%" }}
+                                        placeholder="Enter your region"
                                     />
                                 ) : (
                                     profile.region

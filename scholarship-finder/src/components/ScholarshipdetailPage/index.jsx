@@ -13,25 +13,27 @@ const ScholarshipDetailPage = () => {
   useEffect(() => {
     const fetchScholarshipDetails = async () => {
       try {
-        // const response = await fetch(`/api/scholarships/${id}`);
-        // const data = await response.json();
-        const data = {
-          deadline: "12-12-2025" ,
-          applicationLink: "" ,
-          name: "Name" ,
-          amountType: "Full/Partial" , 
-          description: "nothing",
-          minGPA: 7.5,
-          location: "INDIA",
-          eligibleCourses: ['CSE','ECE','EEE'],
-          provider: "NTSE",
-          contactEmail: "ntse@gmail.com",
-          contactPhone: 123456789,
-          website: "http://localhost:5137"
+        const response = await fetch(`http://localhost:3000/scholarship/${id}`);
+        const Data = await response.json();
+        console.log(Data);
+        const ddata={
+          "Eligibility": "PhD degree holders",
+          "Region": "India",
+          "Deadline": "Always Open",
+          "Award": "INR 45,000 to INR 55,000 per month plus HRA",
+          "Description": "The Indian Institute of Technology, Bhubaneswar is inviting applications for IIT Bhubaneswar Post Doctoral Fellowship Programme 2020 from PhD degree holders below 35 years of age. The fellows will be required to participate in the teaching and research activities of the Institute including mentoring young undergraduates and post-graduate students. The selected fellows will receive a fellowship of  INR 45,000 to INR 55,000 per month plus HRA (depending upon the experience and qualification).",
+          "Email": "ar.acad@iitbbs.ac.in",
+          "Contact Number": "0674-7134578",
+          "link": "http://webapps.iitbbs.ac.in/pdf-application/index.php",
+          "category": "mixed",
+          "Links": "{'Apply online link': 'http://webapps.iitbbs.ac.in/pdf-application/pdf-registration.php', 'Latest scholarship link': 'http://webapps.iitbbs.ac.in/pdf-application/index.php', 'Others': 'http://webapps.iitbbs.ac.in/pdf-application/pdf-usefull-info-01.pdf'}",
+          "contactDetails": "Assistant Registrar (Academic Affairs)\nIndian Institute of Technology Bhubaneswar\nArgul, Khordha-752050, ODISHA\nE-mail id – ar.acad@iitbbs.ac.in\nContact No. – 0674-7134578",
+          "name": "Name"
         }
-        // if (!response.ok) {
-        //   throw new Error(data.message || 'Failed to fetch scholarship details');
-        // }
+        const data = Data[0] || ddata; // Use the first item or sample data if not found
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch scholarship details');
+        }
 
         setScholarship(data);
         setLoading(false);
@@ -50,7 +52,10 @@ const ScholarshipDetailPage = () => {
 
   const handleApplyClick = () => {
     // In a real app, this would redirect to the application page or external site
-    window.open(scholarship.applicationLink, '_blank');
+    const links = JSON.parse(scholarship.Links.replace(/'/g, '"'));
+    if(links['Apply online link']){
+      window.open(links['Apply online link'], '_blank');
+    }
   };
 
   if (loading) {
@@ -65,10 +70,14 @@ const ScholarshipDetailPage = () => {
     return <div className="not-found">Scholarship not found</div>;
   }
 
-  const deadline = new Date(scholarship.deadline);
+  const deadline = (new Date(scholarship.Deadline) === "Invalid Date" ? scholarship.Deadline : new Date(scholarship.Deadline));
   const now = new Date();
   const diffTime = deadline - now;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const links = JSON.parse(scholarship.Links.replace(/'/g, '"'));
+  let diffDays = -1;
+  if(new Date(scholarship.Deadline).toLocaleDateString() !== "Invalid Date"){
+    diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
 
   return (
     <div className="scholarship-detail-container">
@@ -79,11 +88,11 @@ const ScholarshipDetailPage = () => {
       <div className="scholarship-header">
         <h1>{scholarship.name}</h1>
         <div className="scholarship-meta">
-          <span className={`amount-badge ${scholarship.amountType.toLowerCase()}`}>
-            {scholarship.amountType} Funding
+          <span className="amount-badge">
+            {scholarship.category} Funding
           </span> 
           <span className="deadline">
-            Deadline: {deadline.toLocaleDateString()} ({diffDays > 0 ? `${diffDays} days left` : 'Expired'})
+            Deadline: {deadline.toLocaleDateString()} {diffDays > 0 ? `(${diffDays} days left)` : ""}
           </span>
         </div>
       </div>
@@ -92,38 +101,31 @@ const ScholarshipDetailPage = () => {
         <div className="main-content">
           <div className="section">
             <h2>Description</h2>
-            <p>{scholarship.description}</p>
+            <p>{scholarship.Description}</p>
           </div>
 
           <div className="section">
             <h2>Eligibility Criteria</h2>
             <ul>
-              <li><strong>Courses:</strong> {scholarship.eligibleCourses.join(', ')}</li>
-              <li><strong>Minimum GPA:</strong> {scholarship.minGPA}</li>
-              <li><strong>Location:</strong> {scholarship.location}</li>
+              <li><strong> {scholarship.Eligibility}</strong></li>
+              <li><strong>Location:</strong> {scholarship.Region}</li>
               {/* {scholarship.specialCriteria && (
                 <li><strong>Special Criteria:</strong> {scholarship.specialCriteria}</li>
               )} */}
             </ul>
           </div>
 
-          {/* <div className="section">
-            <h2>Benefits</h2>
-            <p>{scholarship.benefits}</p>
-          </div>
-
           <div className="section">
-            <h2>Application Process</h2>
-            <p>{scholarship.applicationProcess}</p>
+            <h2>Benefits</h2>
+            <p>{scholarship.Award}</p>
           </div>
-        </div> */}
 
         <div className="sidebar">
           <div className="sidebar-section">
             <h3>Quick Facts</h3>
             <ul>
-              <li><strong>Provider:</strong> {scholarship.provider}</li>
-              <li><strong>Funding Type:</strong> {scholarship.amountType}</li>
+              <li><strong>Provider:</strong> {scholarship.name}</li>
+              <li><strong>Funding Type:</strong> {scholarship.category}</li>
               {/* <li><strong>Number of Awards:</strong> {scholarship.numberOfAwards || 'Varies'}</li> */}
               {/* <li><strong>Renewable:</strong> {scholarship.renewable ? 'Yes' : 'No'}</li> */}
             </ul>
@@ -131,15 +133,12 @@ const ScholarshipDetailPage = () => {
 
           <div className="sidebar-section">
             <h3>Contact Information</h3>
-            {scholarship.contactEmail && (
-              <p><strong>Email:</strong> <a href={`mailto:${scholarship.contactEmail}`}>{scholarship.contactEmail}</a></p>
-            )}
-            {scholarship.contactPhone && (
-              <p><strong>Phone:</strong> {scholarship.contactPhone}</p>
-            )}
-            {scholarship.website && (
-              <p><strong>Website:</strong> <a href={scholarship.website} target="_blank" rel="noopener noreferrer">{scholarship.website}</a></p>
-            )}
+            {scholarship.contactDetails}
+          </div>
+
+          <div className="sidebar-section">
+            <h3>Webite Link:</h3>
+            <a href={links['Original website'] || scholarship.link} target='_blank'>{scholarship.link}</a>
           </div>
 
           <button 

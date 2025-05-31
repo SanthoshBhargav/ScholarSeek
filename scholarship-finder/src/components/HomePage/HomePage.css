@@ -2,6 +2,8 @@
 .home-page{
   width:80vw;
   z-index: 100;
+  margin-top:90px;
+  position: relative;
 }
 
 .home-container {
@@ -39,6 +41,7 @@
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
+  position: sticky;
 }
 
 .filter-section h2 {
@@ -112,19 +115,7 @@
   font-size: 0.8rem;
   font-weight: bold;
   color: white;
-}
-
-.amount-badge.full {
   background-color: #28a745;
-}
-
-.amount-badge.partial {
-  background-color: #ffc107;
-  color: #212529;
-}
-
-.amount-badge.small {
-  background-color: #17a2b8;
 }
 
 .description {
