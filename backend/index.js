@@ -5,7 +5,6 @@ const cors = require('cors')
 const Scholarship = require('./scholarship-model')
 const User = require('./user-model')
 const bcrypt = require('bcrypt')
-
 const app = express()
 app.use(express.json())
 app.use(cors({
@@ -24,6 +23,7 @@ app.listen(3000, () => {
 
 const midwareFunc = (req, res, next) => {
   let jwtToken
+  // console.log(req.headers)
   const auth = req.headers['authorization']
   if (auth !== undefined) {
     jwtToken = auth.split(' ')[1]
@@ -37,7 +37,7 @@ const midwareFunc = (req, res, next) => {
         res.status(401)
         res.send('Invalid JWT Token')
       } else {
-        req.user_id = payload.user_id
+        req.user = payload
         next()
       }
     })
@@ -57,7 +57,13 @@ app.post('/register/', async (request, response) => {
       const newUser = new User({
         Username: username,
         HashedPassword: hashedPassword,
-        Email: email
+        Email: email,
+        college: "",
+        course: "",
+        cpi: "",
+        region: "",
+        name: "",
+        profilePicture: "",
       })
       const dbResponse = await User.create(newUser)
       response.status(200)
@@ -124,5 +130,45 @@ app.get('/scholarship/:id', async (req, res) => {
         res.status(200).json(scholarships)
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch scholarships' })
+    }
+})
+
+app.get('/user/profile', midwareFunc, async (req, res) => {
+    try {
+      const user = await User.findOne({ Username: req.user.username })
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' })
+      }
+      const userProfile = {
+        username: user.Username,
+        college: user.college,
+        course: user.course,
+        cpi: user.cpi,
+        region: user.region,
+        name: user.name,
+        profilePicture: user.profilePicture
+      }
+      res.status(200).json(userProfile)
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch user profile' })
+    }
+})
+
+app.post('/user/profile/update', midwareFunc, async (req, res) => {
+    try {
+        const user = await User.findOne({Username: req.user.username})
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' })
+        }
+        user.college = req.body.college || user.college
+        user.course = req.body.course || user.course
+        user.cpi = req.body.cpi || user.cpi
+        user.region = req.body.region || user.region
+        user.name = req.body.name || user.name
+        user.profilePicture = req.body.profilePicture || user.profilePicture
+        const updatedUser = await user.save()
+        res.status(201).json(updatedUser)
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create scholarship' })
     }
 })

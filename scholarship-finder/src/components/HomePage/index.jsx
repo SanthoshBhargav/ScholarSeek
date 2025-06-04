@@ -26,6 +26,8 @@ const HomePage = () => {
   const [filter, setFilter] = useState({
     category: '',
     deadline: '',
+    search: '',
+    eligibilitySearch: ''
   });
 
   useEffect(() => {
@@ -76,6 +78,19 @@ const HomePage = () => {
         filtered = filtered.filter(scholarship => new Date(scholarship.Deadline) <= oneWeekAgo);
       }
 
+      if(filter.search!==''){
+        filtered = filtered.filter(scholarship => {
+          return (scholarship.name.toLocaleLowerCase().includes(filter.search.toLocaleLowerCase()) || 
+                  scholarship.Description.toLocaleLowerCase().includes(filter.search.toLocaleLowerCase()))
+      });
+      }
+
+      if(filter.eligibilitySearch!==''){
+        filtered = filtered.filter(scholarship => {
+          return scholarship.Eligibility.toLocaleLowerCase().includes(filter.eligibilitySearch.toLocaleLowerCase());
+        })
+      }
+
       setFilteredScholarships(filtered);
     };
 
@@ -111,7 +126,7 @@ const HomePage = () => {
           <div className="filter-grid">
             <div className="filter-group">
               <label htmlFor="category">Category:</label>
-              <select onChange={(e)=>{setFilter({category:e.target.value})}} id="category" name="category">
+              <select onChange={(e)=>{setFilter({...filter,category:e.target.value})}} id="category" name="category">
                 <option value="">All Categories</option>
                 <option value="monetary">Monetary</option>
                 <option value="tuition_waiver">Tuition Waiver</option>
@@ -121,13 +136,29 @@ const HomePage = () => {
             </div>
             <div className="filter-group">
               <label htmlFor="deadline">Deadline:</label>
-              <select onChange={(e)=>{setFilter({deadline:e.target.value})}} id="category" name="category">
+              <select onChange={(e)=>{setFilter({...filter,deadline:e.target.value})}} id="category" name="category">
                 <option value="">All</option>
                 <option value="week">Week</option>
                 <option value="month">Month</option>
                 <option value="six-months">Six Months</option>
                 <option value="always-open">Always Open</option>
               </select>
+            </div>
+            <div className='filter-group'>
+              <label>Search:</label>
+              <input 
+                placeholder='Search Anything' 
+                type='text' 
+                onChange={(e)=>{setFilter({...filter,search:e.target.value})}} 
+              />
+            </div>
+            <div className='filter-group'>
+              <label>Eligibility Search:</label>
+              <input 
+                placeholder='Eg: Undergraduate, PhD, etc.' 
+                type='text' 
+                onChange={(e)=>{setFilter({...filter,eligibilitySearch:e.target.value})}} 
+              />
             </div>
           </div>
         </div>
