@@ -2,8 +2,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
 const cors = require('cors')
-const Scholarship = require('./scholarship-model')
-const User = require('./user-model')
+const Scholarship = require('./models/scholarship-model')
+const User = require('./models/user-model')
+const midwareFunc = require('./middleware/auth')
 const bcrypt = require('bcrypt')
 const app = express()
 app.use(express.json())
@@ -21,28 +22,9 @@ app.listen(3000, () => {
   console.log('Server Running at http://localhost:3000/')
 })
 
-const midwareFunc = (req, res, next) => {
-  let jwtToken
-  // console.log(req.headers)
-  const auth = req.headers['authorization']
-  if (auth !== undefined) {
-    jwtToken = auth.split(' ')[1]
-  }
-  if (jwtToken === undefined) {
-    res.status(401)
-    res.send('Invalid JWT Token')
-  } else {
-    jwt.verify(jwtToken, 'MY_SECRET_TOKEN', async (error, payload) => {
-      if (error) {
-        res.status(401)
-        res.send('Invalid JWT Token')
-      } else {
-        req.user = payload
-        next()
-      }
-    })
-  }
-}
+app.get('/', (req, res) => {
+    res.send('Welcome to the Scholarship Finder API')
+})
 
 app.post('/register/', async (request, response) => {
   const {username, password, email} = request.body
@@ -100,10 +82,6 @@ app.post('/login/', async (req, res) => {
     }
     // res.status(200).send(dbuser[0]);
   }
-})
-
-app.get('/', (req, res) => {
-    res.send('Welcome to the Scholarship Finder API')
 })
 
 app.get('/scholarships/', async (req, res) => {
