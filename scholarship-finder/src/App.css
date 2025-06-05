@@ -16,6 +16,7 @@
     overflow: scroll;
     height: 100vh;
     background: linear-gradient(135deg, #1a1a1a 0%, #3c0000 50%, #000000 100%);
+    /* background: linear-gradient(135deg, #8f8d8d 0%, #918989 50%, #a87575 100%); */
     overflow: scroll;
     display: flex;
     flex-direction: column;

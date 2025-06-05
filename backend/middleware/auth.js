@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken')
+
 const midwareFunc = (req, res, next) => {
   let jwtToken
   // console.log(req.headers)
@@ -20,4 +22,5 @@ const midwareFunc = (req, res, next) => {
     })
   }
 }
-module.exports = midwareFunc
+
+module.exports = midwareFunc;
