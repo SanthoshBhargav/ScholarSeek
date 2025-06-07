@@ -39,9 +39,9 @@ npm run dev
 
 1. Open **MongoDB Compass**
 2. Connect to: `mongodb://localhost:27017`
-3. Create a new Database named: `scholarseek`
+3. Create a new Database named: `Scholarseek`
 4. Create a new Collection named: `scholarships`
 5. Click on **"Add Data"** → **"Import JSON"**
-6. Select the file: `scraper/scholarship.json`
+6. Select the file: `Scholarseek.scholarships.json`
 7. Click **Import**
    
