@@ -1,4 +1,4 @@
-# ScholarsSeek
+# ScholarSeek
 
 Discover the right scholarships tailored to your goals—fast, simple, and personalized.
 
