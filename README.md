@@ -30,12 +30,12 @@ cd scholarship-finder
 npm i
 npm run dev
 ````
-# 🗄 MongoDB Setup
+## MongoDB Setup
 
  Ensure MongoDB is installed and running on your system.
    - Download from: [MongoDB Community Server](https://www.mongodb.com/try/download/community)
 
-#  Import Scraped Scholarship Data
+##  Import Scraped Scholarship Data
 
 1. Open **MongoDB Compass**
 2. Connect to: `mongodb://localhost:27017`
